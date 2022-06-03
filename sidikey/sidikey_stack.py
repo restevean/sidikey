@@ -5,7 +5,9 @@ from aws_cdk import (
     aws_apigateway as apigw,
     aws_s3 as s3,
 )
-# TODO: s3, layers, poetry
+
+
+# TODO: s3 use an existing bucket, permissions, layers, poetry
 
 class SidikeyStack(Stack):
 
@@ -21,7 +23,7 @@ class SidikeyStack(Stack):
         )
 
         # Defines an AWS Lambda resource
-        my_lambda_1= _lambda.Function(
+        my_lambda_1 = _lambda.Function(
             self, 'Handler_1',
             runtime=_lambda.Runtime.PYTHON_3_9,
             code=_lambda.Code.from_asset('lambda'),
@@ -29,7 +31,7 @@ class SidikeyStack(Stack):
         )
 
         # Defines an AWS Lambda resource
-        my_lambda_2= _lambda.Function(
+        my_lambda_2 = _lambda.Function(
             self, 'Handler_2',
             runtime=_lambda.Runtime.PYTHON_3_9,
             code=_lambda.Code.from_asset('lambda'),
@@ -50,13 +52,9 @@ class SidikeyStack(Stack):
         items.add_method("GET", get_method_integration)  # GET /items
         items.add_method("POST", post_method_integration)  # POST /items
 
-# class S3DeployStack(Stack):
-#
-#     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-#         super().__init__(scope, construct_id, **kwargs)
-#
-#         s3.Bucket(
-#             self,
-#             'restevean-cdk-bucket',
-#             bucket_name = 'restevean-cdk-bucket'
-#         )
+        # Defines an AWS s3 bucket to create (does not exist until deployment)
+        s3.Bucket(
+            self,
+            'restevean-cdk-bucket',
+            bucket_name='restevean-cdk-bucket'
+        )
