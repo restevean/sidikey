@@ -1,6 +1,6 @@
 import json
-import boto3
-from typing import Dict
+# import boto3
+# from typing import Dict
 # from aws_lambda_context import LambdaContext
 # from botocore.exceptions import ClientError
 

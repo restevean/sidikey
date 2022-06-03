@@ -24,23 +24,5 @@ SidikeyStack(app, "SidikeyStack",
 
              # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
              )
-"""
-# load our env file
-print('Loading env file')
-# load_dotenv()
 
-
-print('Creating environment')
-cdk_env = cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
-
-app = cdk.App()
-S3DeployStack(
-    app,
-    "S3DeployStack",
-    env=cdk_env
-)
-
-# synthesize it
-print('Synthesizing stack')
-"""
 app.synth()
