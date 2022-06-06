@@ -17,9 +17,10 @@ class SidikeyStack(Stack):
     def __init__(self, scope: Construct, id_: str, **kwargs: Any) -> None:
         super().__init__(scope, id_, **kwargs)
 
-        lambdaLayer = _lambda.LayerVersion(
+        lambda_layer = _lambda.LayerVersion(
             self, 'lambda-layer',
-            code=_lambda.AssetCode('lambda/layer/'),
+            # code=_lambda.AssetCode('lambda/layer/'),
+            code=_lambda.AssetCode('.lambda_layers_dependencies/'),
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_9],
         )
 
@@ -30,7 +31,7 @@ class SidikeyStack(Stack):
             code=_lambda.Code.from_asset('lambda'),
             description='handler 0, root of Sidikey API gateway',
             handler='actions.lambda_handler_0',
-            layers = [lambdaLayer],
+            layers = [lambda_layer],
             function_name='handler_root'
         )
 
@@ -41,7 +42,7 @@ class SidikeyStack(Stack):
             code=_lambda.Code.from_asset('lambda'),
             description='Handler 1, method "GET" on resource /testing',
             handler='actions.lambda_handler_1',
-            layers=[lambdaLayer],
+            layers=[lambda_layer],
             function_name='testing_get'
         )
 
@@ -52,7 +53,7 @@ class SidikeyStack(Stack):
             code=_lambda.Code.from_asset('lambda'),
             description='Handler 2, method "POST" on resource /testing',
             handler='actions.lambda_handler_2',
-            layers=[lambdaLayer],
+            layers=[lambda_layer],
             function_name='testing_post'
         )
 
@@ -63,7 +64,7 @@ class SidikeyStack(Stack):
             code=_lambda.Code.from_asset('lambda'),
             description='Handler 3, method "PUT" on resource /testing',
             handler='actions.lambda_handler_3',
-            layers=[lambdaLayer],
+            layers=[lambda_layer],
             function_name='testing_put'
         )
 
@@ -92,7 +93,7 @@ class SidikeyStack(Stack):
         )
 
         # Gives read/write permission from my_lambda_2 to the bucket
-        # 👇 I think line below is not good practice, but works
+        # 👇 I think line below is not good practice, but it works
         # bucket.grant_read_write(my_lambda_2)
 
         # Defines and add permissions to my_lambda_2
