@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "sidikey"
+version = "0.1.0"
+description = "Learning AWS CDK deployment tool"
+authors = ["restevean <restevean@protonmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aws-cdk-lib = "^2.27.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

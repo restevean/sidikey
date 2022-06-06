@@ -11,3 +11,4 @@ cdk.out
 
 .idea/
 node_modules/
+.lambda_layers*

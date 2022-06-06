@@ -28,5 +28,6 @@
       "aws",
       "aws-cn"
     ]
-  }
+  },
+  "requireApproval": "never"
 }

@@ -42,5 +42,6 @@ def lambda_handler_2(event, context):
             # 'body': json.dumps(event)
         }
 
+
 def lambda_handler_3(event, context):
     return {'statusCode': 200, 'body': 'Handler 3, method "PUT"'}
