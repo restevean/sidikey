@@ -1,11 +1,9 @@
 import json
 import boto3
 # from typing import Dict
-# from aws_lambda_context import LambdaContext
-# from botocore.exceptions import ClientError
 
 
-def lambda_handler_0(event, context):
+def api_root(event, context):
     method: str = event["httpMethod"]
     if method == 'GET':
         return {
@@ -20,7 +18,6 @@ def lambda_handler_1(event, context):
     return {'statusCode': 200, 'body': 'Handler 1, method "GET"'}
 
 
-# TODO: Permissions
 def lambda_handler_2(event, context):
     s3 = boto3.resource('s3')
     bucket_name = event["queryStringParameters"]['bucket']

@@ -9,7 +9,7 @@ from aws_cdk import (
 from typing import Any
 
 
-# TODO: s3 use an existing bucket, layers, testing
+# TODO: s3 use an existing bucket, testing
 
 
 class SidikeyStack(Stack):
@@ -29,9 +29,9 @@ class SidikeyStack(Stack):
             self, 'handler_0',
             runtime=_lambda.Runtime.PYTHON_3_9,
             code=_lambda.Code.from_asset('lambda'),
-            description='handler 0, root of Sidikey API gateway',
-            handler='actions.lambda_handler_0',
-            layers = [lambda_layer],
+            description='api_root, root of Sidikey API gateway',
+            handler='actions.api_root',
+            layers=[lambda_layer],
             function_name='handler_root'
         )
 
@@ -86,32 +86,37 @@ class SidikeyStack(Stack):
         new_resource.add_method("PUT", put_method_integration)  # PUT /items
 
         # Defines an AWS s3 bucket to create (does not exist until deployment)
-        bucket = s3.Bucket(
+        # bucket = s3.Bucket(
+        s3.Bucket(
             self,
             'restevean-cdk-bucket',
             bucket_name='restevean-cdk-bucket'
         )
 
         # Gives read/write permission from my_lambda_2 to the bucket
-        # 👇 I think line below is not good practice, but it works
+        # 👇 I think line below is not good practice, but it works.
+        # 👇 To make it work uncomment line 89 and comment line 90
         # bucket.grant_read_write(my_lambda_2)
 
         # Defines and add permissions to my_lambda_2
         my_lambda_2.add_to_role_policy(iam.PolicyStatement(
-            actions=["s3:ListBucket","s3:PutObject"],
+            actions=["s3:ListBucket", "s3:PutObject"],
             effect=iam.Effect.ALLOW,
-            resources=['arn:aws:s3:::restevean-cdk-bucket','arn:aws:s3:::restevean-cdk-bucket/*']
+            resources=['arn:aws:s3:::restevean-cdk-bucket', 'arn:aws:s3:::restevean-cdk-bucket/*']
             )
         )
 
-
-"""
-        # Define a develop layer
-        boto3_lambda_develop_layer = _PythonLayerVersion(
-            self, 'Boto3LambdaLayer',
-            entry='lambda/boto3Folder',
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_9],
-            description='Boto3 Library',
-            layer_version_name='develop layer'
+        """
+        my_lambda_2.add_to_role_policy(iam.PolicyStatement(
+            actions=["s3:ListBucket"],
+            effect=iam.Effect.ALLOW,
+            resources=['arn:aws:s3:::restevean-cdk-bucket']
+            )
         )
-"""
+        my_lambda_2.add_to_role_policy(iam.PolicyStatement(
+            actions=["s3:PutObject"],
+            effect=iam.Effect.ALLOW,
+            resources=['arn:aws:s3:::restevean-cdk-bucket/*']
+            )
+        )
+        """
