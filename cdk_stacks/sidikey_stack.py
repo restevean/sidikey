@@ -113,6 +113,23 @@ class SidikeyStack(Stack):
                                                 ),
                                                 )
 
+        # Create a role
+        cognito_admin_user_role = iam.Role(self, "Role",
+                                           assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+                                           description="Can add user to the pool"
+                                           )
+
+        # Set up role permissions
+        cognito_admin_user_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "cognito-idp:AdminEnableUser",
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminDisableUser"
+            ],
+            resources=[user_pool.user_pool_arn]
+            )
+        )
+
         # Create a user Admin and attach it to the cognito_user_admin_group
         cognito.CfnUserPoolUser(self, "Admin",
                                 user_pool_id=user_pool.user_pool_id,
@@ -140,23 +157,8 @@ class SidikeyStack(Stack):
                                                  )
 
         user_pool_domain.sign_in_url(user_pool_cli,
-
                                      redirect_uri="https://api.restevean.es"
-        # Create a role
-        cognito_admin_user_role = iam.Role(self, "Role",
-                                           assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
-                                           description="Can add user to the pool"
-                                           )
-
-        # Set up role permissions
-        cognito_admin_user_role.add_to_policy(iam.PolicyStatement(
-            actions=[
-                "cognito-idp:AdminEnableUser",
-                "cognito-idp:AdminCreateUser",
-                "cognito-idp:AdminDisableUser"
-            ],
-            resources=[user_pool.user_pool_arn]
-        ))
+                                     )
 
         # Creates an authorizer
         my_authorizer = apigw.CognitoUserPoolsAuthorizer(self, "SidikeyAuthorizer",
