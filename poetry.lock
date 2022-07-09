@@ -14,7 +14,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "aws-cdk-lib"
-version = "2.30.0"
+version = "2.31.1"
 description = "Version 2 of the AWS Cloud Development Kit library"
 category = "main"
 optional = false
@@ -179,17 +179,14 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "a36f96991455903293200617bb51a8c6d957c133c6d19a100bf281e5e6a777b1"
+content-hash = "fdea4f580ea8128a541a00fd03b716841c41a631a55c0bec8c39b0a90bc73e45"
 
 [metadata.files]
 attrs = [
     {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
-aws-cdk-lib = [
-    {file = "aws-cdk-lib-2.30.0.tar.gz", hash = "sha256:eb72ed2e25f893f603c284bb25aa144604c4321a2d4d992b820431dab0db955a"},
-    {file = "aws_cdk_lib-2.30.0-py3-none-any.whl", hash = "sha256:a65639e936870823a86e9dc98707ea79a7a440a30f769fe9bf774b64e322107d"},
-]
+aws-cdk-lib = []
 boto3 = [
     {file = "boto3-1.24.22-py3-none-any.whl", hash = "sha256:c9a9f893561f64f5b81de197714ac4951251a328672a8dba28ad4c4a589c3adf"},
     {file = "boto3-1.24.22.tar.gz", hash = "sha256:67d404c643091d4aa37fc485193289ad859f1f65f94d0fa544e13bdd1d4187c1"},
