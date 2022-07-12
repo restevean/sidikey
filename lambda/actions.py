@@ -1,6 +1,5 @@
 import json
 import boto3
-# from typing import Dict
 
 
 def api_root(event, context):
@@ -42,3 +41,31 @@ def lambda_handler_2(event, context):
 
 def lambda_handler_3(event, context):
     return {'statusCode': 200, 'body': 'Handler 3, method "PUT"'}
+
+
+def add_user_to_pool(event, context):
+    body = json.loads(event["body"])
+    username = body['username']
+    email = body['email']
+    print(username, email)  # Just for cloudwatch logs
+    user_pool = boto3.client('cognito-idp')
+
+    try:
+        user_pool.admin_create_user(
+            UserPoolId="us-east-1_87n22vUsu",
+            Username=username,
+            UserAttributes=[
+                {"Name": "email", "Value": email},
+                {"Name": "email_verified", "Value": "False"}
+            ],
+            DesiredDeliveryMediums=['EMAIL']
+        )
+        return {
+            'statusCode': 200,
+            'body': json.dumps(body)
+        }
+    except:
+        return {
+            'statusCode': 409,
+            'body': json.dumps(f'User {username} already exists on the user pool')
+        }
