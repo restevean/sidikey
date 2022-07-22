@@ -227,7 +227,6 @@ class SidikeyStack(Stack):
 
         # Gives read/write permission from my_lambda_2 to the bucket
         # 👇 I think line below is not good practice, but it works.
-        # 👇 To make it work uncomment line 89 and comment line 90
         # bucket.grant_read_write(my_lambda_2)
 
         # Defines and add permissions to my_lambda_2
