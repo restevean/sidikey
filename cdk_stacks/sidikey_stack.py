@@ -1,5 +1,4 @@
 from typing import Any
-
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
@@ -7,14 +6,13 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_iam as iam,
     aws_cognito as cognito, RemovalPolicy,
-    # aws_core as core,
 )
 from constructs import Construct
 
 
 # TODO: Actually any user from user_pool is allowed to create users, only users from admin_users might be able
 # TODO: Testing
-# TODO: Custom domain in stack
+# TODO: Custom domain in stack, Route53
 # TODO: user_to_group.add_depends_on(target(CfnResource))
 
 
@@ -193,23 +191,18 @@ class SidikeyStack(Stack):
         # ),
         # )
 
-        # user_pool_domain.sign_in_url(user_pool_cli,
-        #                              redirect_uri="https://api.restevean.es"
-        #                              )
-
         # Creates an authorizer
         my_authorizer = apigw.CognitoUserPoolsAuthorizer(self, "SidikeyAuthorizer",
                                                          cognito_user_pools=[user_pool],
                                                          )
 
-        # Creating methods
+        # Creating API resources and methods
         # api.root.add_method("GET", )
         api.root.add_method("GET",
                             # authorizer=authorizer,
                             authorizer=my_authorizer,
                             authorization_type=apigw.AuthorizationType.COGNITO,
                             )
-
         api.root.add_method("POST")
         new_resource = api.root.add_resource("testing")
         get_method_integration = apigw.LambdaIntegration(my_lambda_1)
@@ -247,6 +240,7 @@ class SidikeyStack(Stack):
         )
 
         """
+        # I think this is the most precise way, but means more lines of code than ☝️ previoous way ☝
         my_lambda_2.add_to_role_policy(iam.PolicyStatement(
             actions=["s3:ListBucket"],
             effect=iam.Effect.ALLOW,
