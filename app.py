@@ -26,7 +26,7 @@ subprocess.check_output(
 app = cdk.App()
 SidikeyStack(app,
              "SidikeyStack",
-             # stack_name='sidikey_0-stack',
+             # stack_name='sidikey-stack',
              # environment_type=ENVIRONMENT_TYPE,
              # project_name=PROJECT_NAME,
              # module_name=MODULE_NAME,

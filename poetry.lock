@@ -26,6 +26,20 @@ jsii = ">=1.62.0,<2.0.0"
 publication = ">=0.0.3"
 
 [[package]]
+name = "aws-cdk.aws-lambda-python-alpha"
+version = "2.33.0a0"
+description = "The CDK Construct Library for AWS Lambda in Python"
+category = "dev"
+optional = false
+python-versions = "~=3.7"
+
+[package.dependencies]
+aws-cdk-lib = ">=2.33.0,<3.0.0"
+constructs = ">=10.0.0,<11.0.0"
+jsii = ">=1.62.0,<2.0.0"
+publication = ">=0.0.3"
+
+[[package]]
 name = "cattrs"
 version = "22.1.0"
 description = "Composable complex class support for attrs and dataclasses."
@@ -112,7 +126,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "2198acc3d175ca0021c3cb50013f53193aa2ed0028bf1c58e38bd0c266dc137a"
+content-hash = "2b5977b2e0fe7818c84d762c7cf4d031d38d21d3647b5af6eba202e45cf40842"
 
 [metadata.files]
 attrs = [
@@ -120,6 +134,7 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 aws-cdk-lib = []
+"aws-cdk.aws-lambda-python-alpha" = []
 cattrs = [
     {file = "cattrs-22.1.0-py3-none-any.whl", hash = "sha256:d55c477b4672f93606e992049f15d526dc7867e6c756cd6256d4af92e2b1e364"},
     {file = "cattrs-22.1.0.tar.gz", hash = "sha256:94b67b64cf92c994f8784c40c082177dc916e0489a73a9a36b24eb18a9db40c6"},

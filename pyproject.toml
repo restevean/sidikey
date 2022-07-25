@@ -9,6 +9,8 @@ python = "^3.8"
 aws-cdk-lib = "^2.33.0"
 
 [tool.poetry.dev-dependencies]
+aws-cdk-lib = "^2.33.0"
+"aws-cdk.aws-lambda-python-alpha" = "^2.33.0-alpha.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
