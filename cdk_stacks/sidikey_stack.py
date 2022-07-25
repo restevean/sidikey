@@ -1,5 +1,4 @@
 from typing import Any
-
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
@@ -7,7 +6,7 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_iam as iam,
     aws_cognito as cognito, RemovalPolicy,
-    core as core,
+    # core as core,
 )
 # import aws_cdk.core as core
 from constructs import Construct
@@ -87,31 +86,31 @@ class SidikeyStack(Stack):
 
         # Defines cognito user pool
         # core.CfnResource(self, "UserPoolCfnResource", type="AWS::COGNITO::USERPOOL")
-        user_pool = core.CfnResource(
-            self,
-            "Cfn_Sidikey_User_Pool",
-            type="AWS::COGNITO::USERPOOL"
-            properties={
-                
-            }
-
-        )
-
-
-        # user_pool = cognito.UserPool(self, 'MyUserPool05',
-        #                              user_pool_name='Sidikey_User_Pool',
-        #                              standard_attributes=cognito.StandardAttributes(
-        #                                  email=cognito.StandardAttribute(
-        #                                      required=True,
-        #                                      mutable=True
-        #                                  )
-        #                              ),
-        #                              self_sign_up_enabled=False,
-        #                              auto_verify=cognito.AutoVerifiedAttrs(email=True, phone=False),
-        #                              account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
+        # user_pool = core.CfnResource(
+        #     self,
+        #     "Cfn_Sidikey_User_Pool",
+        #     type="AWS::COGNITO::USERPOOL"
+        #     properties={
         #
-        #                              # removal_policy=RemovalPolicy.DESTROY,
-        #                              )
+        #     }
+        #
+        # )
+
+
+        user_pool = cognito.UserPool(self, 'MyUserPool05',
+                                     user_pool_name='Sidikey_User_Pool',
+                                     standard_attributes=cognito.StandardAttributes(
+                                         email=cognito.StandardAttribute(
+                                             required=True,
+                                             mutable=True
+                                         )
+                                     ),
+                                     self_sign_up_enabled=False,
+                                     auto_verify=cognito.AutoVerifiedAttrs(email=True, phone=False),
+                                     account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
+
+                                     # removal_policy=RemovalPolicy.DESTROY,
+                                     )
 
         # Assign an app client to created cognito pool
         user_pool_cli = user_pool.add_client("SidikeyApp01",
@@ -185,23 +184,38 @@ class SidikeyStack(Stack):
         cognito_admin_user_role.add_to_policy(add_user_policy)
         my_lambda_4.add_to_role_policy(add_user_policy)
 
-        # user_pool_domain.sign_in_url(user_pool_cli,
-        #                              redirect_uri="https://api.restevean.es"
-        #                              )
+        # cognito_admin_user_role.add_to_policy(iam.PolicyStatement(
+        #     actions=[
+        #         "cognito-idp:AdminEnableUser",
+        #         "cognito-idp:AdminCreateUser",
+        #         "cognito-idp:AdminDisableUser"
+        #     ],
+        #     resources=[user_pool.user_pool_arn]
+        # ),
+        # )
+        #
+        # my_lambda_4.add_to_role_policy(iam.PolicyStatement(
+        #     actions=[
+        #         "cognito-idp:AdminEnableUser",
+        #         "cognito-idp:AdminCreateUser",
+        #         "cognito-idp:AdminDisableUser"
+        #     ],
+        #     resources=[user_pool.user_pool_arn]
+        # ),
+        # )
 
         # Creates an authorizer
         my_authorizer = apigw.CognitoUserPoolsAuthorizer(self, "SidikeyAuthorizer",
                                                          cognito_user_pools=[user_pool],
                                                          )
 
-        # Creating methods
+        # Creating API resources and methods
         # api.root.add_method("GET", )
         api.root.add_method("GET",
                             # authorizer=authorizer,
                             authorizer=my_authorizer,
                             authorization_type=apigw.AuthorizationType.COGNITO,
                             )
-
         api.root.add_method("POST")
         new_resource = api.root.add_resource("testing")
         get_method_integration = apigw.LambdaIntegration(my_lambda_1)
@@ -238,6 +252,7 @@ class SidikeyStack(Stack):
         )
 
         """
+        # I think this is the most precise way, but means more lines of code than ☝️ previoous way ☝
         my_lambda_2.add_to_role_policy(iam.PolicyStatement(
             actions=["s3:ListBucket"],
             effect=iam.Effect.ALLOW,

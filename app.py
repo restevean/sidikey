@@ -3,30 +3,11 @@ import os
 import aws_cdk as cdk
 from cdk_stacks.sidikey_stack import SidikeyStack
 import subprocess
-# from cdk_stacks.sidikey_stack import S3DeployStack
-# from dotenv import load_dotenv
-# import MODULE_NAME as MODULE_NAME
 
-
-# ENVIRONMENT_TYPE = os.environ.get("ENVIRONMENT_TYPE", "sandbox")
-# PROJECT_NAME = "sidikey"
-# MODULE_NAME = "your-module-name"  # Remove this if this is a non-portal project
-
-# if ENVIRONMENT_TYPE not in ['sandbox', 'dev', 'test', 'prod']:
-#     raise Exception(
-#         'Invalid value for the ENVIRONMENT_TYPE environment variable. Must be '
-#         'one of [sandbox, dev, test, prod].'
-#     )
-#
-# LAMBDA_LOG_LEVEL_PER_ENVIRONMENT = {
-#     'sandbox': 'DEBUG',
-#     'dev': 'DEBUG',
-#     'test': 'WARNING',
-#     'prod': 'WARNING'
-# }
 
 if not os.path.exists('.lambda_layers_dependencies'):
     os.makedirs('.lambda_layers_dependencies')
+
 
 subprocess.check_output(
     [
