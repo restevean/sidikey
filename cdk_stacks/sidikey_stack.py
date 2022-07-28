@@ -73,6 +73,43 @@ class SidikeyStack(Stack):
             function_name='testing_put'
         )
 
+        my_lambda_4 = _lambda.Function(
+            self, 'handler_4',
+            runtime=_lambda.Runtime.PYTHON_3_9,
+            code=_lambda.Code.from_asset('lambda'),
+            description='Handler 4, method "POST" on resource /useradd',
+            handler='actions.add_user_to_pool',
+            layers=[lambda_layer],
+            function_name='adding_users'
+        )
+
+        def add_user_to_pool(event, context):
+            body = json.loads(event["body"])
+            username = body['username']
+            email = body['email']
+            print(username, email)  # Just for cloudwatch logs
+            user_pool = boto3.client('cognito-idp')
+
+            try:
+                user_pool.admin_create_user(
+                    UserPoolId="us-east-1_87n22vUsu",
+                    Username=username,
+                    UserAttributes=[
+                        {"Name": "email", "Value": email},
+                        {"Name": "email_verified", "Value": "False"}
+                    ],
+                    DesiredDeliveryMediums=['EMAIL']
+                )
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps(body)
+                }
+            except:
+                return {
+                    'statusCode': 409,
+                    'body': json.dumps(f'User {username} already exists on the user pool')
+                }
+
         # Defines an AWS API Gateway resource and assign as a trigger for my_lambda_0
         api = apigw.LambdaRestApi(
             self, 'Sidikey',
@@ -214,6 +251,12 @@ class SidikeyStack(Stack):
         new_resource.add_method("GET", get_method_integration)  # GET /items
         new_resource.add_method("POST", post_method_integration)  # POST /items
         new_resource.add_method("PUT", put_method_integration)  # PUT /items
+        nr_user_add = api.root.add_resource("useradd")
+        post_method_integration = apigw.LambdaIntegration(my_lambda_4)
+        nr_user_add.add_method("POST", post_method_integration,
+                               authorizer=my_authorizer,
+                               authorization_type=apigw.AuthorizationType.COGNITO,
+                               )  # POST /useradd
 
         # Defines an AWS s3 bucket to create (if does not exist)
         s3.Bucket(
