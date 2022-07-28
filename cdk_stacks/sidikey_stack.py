@@ -12,10 +12,9 @@ from aws_cdk import (
 from constructs import Construct
 
 
-# TODO: Actually any user from user_pool is allowed to create users, only users from admin_users might be able
-# TODO: Testing
+# TODO: s3 use an existing bucket (do not create bucket if exist)
+# TODO: testing
 # TODO: Custom domain in stack
-# TODO: user_to_group.add_depends_on(target(CfnResource))
 
 
 class SidikeyStack(Stack):
@@ -74,14 +73,12 @@ class SidikeyStack(Stack):
             function_name='testing_put'
         )
 
-        my_lambda_4 = _lambda.Function(
-            self, 'handler_4',
-            runtime=_lambda.Runtime.PYTHON_3_9,
-            code=_lambda.Code.from_asset('lambda'),
-            description='Handler 4, method "POST" on resource /useradd',
-            handler='actions.add_user_to_pool',
-            layers=[lambda_layer],
-            function_name='adding_users'
+        # Defines an AWS API Gateway resource and assign as a trigger for my_lambda_0
+        api = apigw.LambdaRestApi(
+            self, 'Sidikey',
+            handler=my_lambda_0,
+            proxy=False,
+            # default_domain_mapping={"api.restevean.es": dn},
         )
 
         # Defines cognito user pool
@@ -107,9 +104,7 @@ class SidikeyStack(Stack):
                                      ),
                                      self_sign_up_enabled=False,
                                      auto_verify=cognito.AutoVerifiedAttrs(email=True, phone=False),
-                                     account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
-
-                                     # removal_policy=RemovalPolicy.DESTROY,
+                                     account_recovery=cognito.AccountRecovery.EMAIL_ONLY
                                      )
 
         # Assign an app client to created cognito pool
@@ -132,12 +127,21 @@ class SidikeyStack(Stack):
                                                 ),
                                                 )
 
-        # Defines an AWS API Gateway resource and assign as a trigger for my_lambda_0
-        api = apigw.LambdaRestApi(
-            self, 'Sidikey',
-            handler=my_lambda_0,
-            proxy=False,
-            # default_domain_mapping={"api.restevean.es": dn},
+        # Create a role
+        cognito_admin_user_role = iam.Role(self, "Role",
+                                           assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+                                           description="Can add user to the pool"
+                                           )
+
+        # Set up role permissions
+        cognito_admin_user_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "cognito-idp:AdminEnableUser",
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminDisableUser"
+            ],
+            resources=[user_pool.user_pool_arn]
+            )
         )
 
         # Create a user Admin and attach it to the cognito_user_admin_group
@@ -146,43 +150,25 @@ class SidikeyStack(Stack):
                                 username="Admin",
                                 # desired_delivery_mediums=["desiredDeliveryMediums"],
                                 # message_action="RESEND",
-                                user_attributes=[
-                                    cognito.CfnUserPoolUser.AttributeTypeProperty(
-                                        name="email",
-                                        value="resteve24@gmail.com"
-                                    ),
-                                    cognito.CfnUserPoolUser.AttributeTypeProperty(
-                                        name="email_verified",
-                                        value="True"
-                                    )],
+                                user_attributes=[cognito.CfnUserPoolUser.AttributeTypeProperty(
+                                    name="email",
+                                    value="resteve24@gmail.com"
+                                )],
                                 )
 
-        # Create a role
-        cognito_admin_user_role = iam.Role(self, "Role",
-                                           assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
-                                           description="Can add user to the pool"
-                                           )
-
-        # Create a cognito user group
         cognito.CfnUserPoolGroup(self, "my_admin_users",
                                  user_pool_id=user_pool.user_pool_id,
-                                 description="Users that can add users to the cognito pool",
+                                 description="Can create users for thr pool",
                                  group_name="admin_users",
                                  precedence=1,
                                  role_arn=cognito_admin_user_role.role_arn
                                  )
 
-        # Set up role permissions
-        add_user_policy = iam.PolicyStatement(
-            actions=[
-                "cognito-idp:AdminEnableUser",
-                "cognito-idp:AdminCreateUser",
-                "cognito-idp:AdminDisableUser",
-            ],
-            resources=[user_pool.user_pool_arn]
-        )
-        cognito_admin_user_role.add_to_policy(add_user_policy)
-        my_lambda_4.add_to_role_policy(add_user_policy)
+        cognito.CfnUserPoolUserToGroupAttachment(self, "MyCfnUserPoolUserToGroupAttachment",
+                                                 group_name="admin_users",
+                                                 username="Admin",
+                                                 user_pool_id=user_pool.user_pool_id
+                                                 )
 
         # cognito_admin_user_role.add_to_policy(iam.PolicyStatement(
         #     actions=[
@@ -204,6 +190,10 @@ class SidikeyStack(Stack):
         # ),
         # )
 
+        # user_pool_domain.sign_in_url(user_pool_cli,
+        #                              redirect_uri="https://api.restevean.es"
+        #                              )
+
         # Creates an authorizer
         my_authorizer = apigw.CognitoUserPoolsAuthorizer(self, "SidikeyAuthorizer",
                                                          cognito_user_pools=[user_pool],
@@ -211,7 +201,7 @@ class SidikeyStack(Stack):
 
         # Creating API resources and methods
         # api.root.add_method("GET", )
-        api.root.add_method("GET",
+        api.root.add_method("GET", apigw.HttpIntegration("https://api.restevean.es"),
                             # authorizer=authorizer,
                             authorizer=my_authorizer,
                             authorization_type=apigw.AuthorizationType.COGNITO,
@@ -221,22 +211,16 @@ class SidikeyStack(Stack):
         get_method_integration = apigw.LambdaIntegration(my_lambda_1)
         post_method_integration = apigw.LambdaIntegration(my_lambda_2)
         put_method_integration = apigw.LambdaIntegration(my_lambda_3)
-        new_resource.add_method("GET", get_method_integration)  # GET /testing
-        new_resource.add_method("POST", post_method_integration)  # POST /testing
-        new_resource.add_method("PUT", put_method_integration)  # PUT /testing
-        nr_user_add = api.root.add_resource("useradd")
-        post_method_integration = apigw.LambdaIntegration(my_lambda_4)
-        nr_user_add.add_method("POST", post_method_integration,
-                               authorizer=my_authorizer,
-                               authorization_type=apigw.AuthorizationType.COGNITO,
-                               )  # POST /useradd
+        new_resource.add_method("GET", get_method_integration)  # GET /items
+        new_resource.add_method("POST", post_method_integration)  # POST /items
+        new_resource.add_method("PUT", put_method_integration)  # PUT /items
 
         # Defines an AWS s3 bucket to create (if does not exist)
         s3.Bucket(
             self,
             'restevean-cdk-bucket',
-            bucket_name='restevean-cdk-bucket',
-            removal_policy=RemovalPolicy.DESTROY
+            bucket_name='restevean-cdk-bucket'
+            # removal_policy
         )
 
         # Gives read/write permission from my_lambda_2 to the bucket
@@ -266,9 +250,3 @@ class SidikeyStack(Stack):
             )
         )
         """
-        cognito.CfnUserPoolUserToGroupAttachment(self, "MyCfnUserPoolUserToGroupAttachment",
-                                                 group_name="admin_users",
-                                                 username="Admin",
-                                                 user_pool_id=user_pool.user_pool_id,
-                                                 )
-        # user_to_group.add_depends_on(target(CfnResource))
